@@ -1,24 +1,45 @@
-import logo from './logo.svg';
+// src/App.js
+import React from 'react';
+import { Provider } from 'react-redux';
+import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import { CssBaseline, Container, AppBar } from '@mui/material';
+import {store} from './redux/store';
+import Login from './components/Login';
 import './App.css';
+import Navbar from "./components/Navbar";
+import ShoppingList from "./pages/ShoppingList";
+import Register from "./components/Register";
+import CartSummary from "./pages/CartSummary";
+import UserOrders from "./pages/UserOrders";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <Provider store={store}>
+        <CssBaseline />
+        <Router>
+          <AppBar position="static">
+              <Navbar/>
+          </AppBar>
+          <Container>
+            <Routes>
+                <Route path="/" element={<ShoppingList />} />
+              <Route path="/cart" element={<CartSummary />} />
+
+              <Route path="/login" element={<Login  />} />
+                <Route path="/register" element={<Register  />} />
+                <Route
+                path="/orders"
+                element={
+                    <ProtectedRoute>
+                        <UserOrders />
+                    </ProtectedRoute>
+                }
+            />
+            </Routes>
+          </Container>
+        </Router>
+      </Provider>
   );
 }
 
