@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { fetchPublicPostApi } from '../services/fetchPublicApi';
 import { loginSuccess } from '../redux/userSlice';
-import {validateEmail} from "../services/validation";
+import { validateEmail } from '../services/validation';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -36,6 +36,23 @@ const Register = () => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const handleServerErrors = (responseErrors) => {
+        const processedErrors = [];
+        if (Array.isArray(responseErrors)) {
+            // Handle array of errors
+            responseErrors.forEach((error) => {
+                processedErrors.push(error.description || 'Unknown error');
+            });
+        } else if (typeof responseErrors === 'object') {
+            // Handle object with field-based errors
+            Object.entries(responseErrors).forEach(([field, messages]) => {
+                messages.forEach((message) => {
+                    processedErrors.push(`${field}: ${message}`);
+                });
+            });
+        }
+        return processedErrors;
+    };
 
     const handleRegister = async () => {
         if (!validate()) return;
@@ -48,9 +65,9 @@ const Register = () => {
             alert('Registration successful!');
             navigate('/cart');
         } catch (error) {
-            console.log(error.response?.data?.errors)
             const errorResponse = error.response?.data?.errors || [];
-            setServerErrors(errorResponse);
+            const processedErrors = handleServerErrors(errorResponse);
+            setServerErrors(processedErrors);
         }
     };
 
@@ -95,14 +112,12 @@ const Register = () => {
                     </Button>
                 </Grid>
             </Grid>
-            {Object.keys(serverErrors).length > 0 && (
+            {serverErrors.length > 0 && (
                 <Box sx={{ marginTop: 2 }}>
                     <Typography color="error">Validation Errors:</Typography>
                     <ul>
-                        {(serverErrors).map((item, index) => (
-                            <li key={index}>
-                                <strong>{item.description}:</strong>
-                            </li>
+                        {serverErrors.map((error, index) => (
+                            <li key={index}>{error}</li>
                         ))}
                     </ul>
                 </Box>
